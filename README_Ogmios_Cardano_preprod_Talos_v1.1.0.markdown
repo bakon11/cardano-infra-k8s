@@ -64,7 +64,7 @@ Create three PVCs: one for the Cardano node database (200GB), one for the IPC so
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cardano-node-db
+  name: cardano-node-preprod-db
   namespace: default
 spec:
   accessModes:
@@ -77,7 +77,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cardano-node-ipc
+  name: cardano-node-preprod-ipc
   namespace: default
 spec:
   accessModes:
@@ -90,7 +90,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cardano-genesis-pvc
+  name: cardano-preprod-genesis-pvc
   namespace: default
 spec:
   accessModes:
@@ -113,23 +113,26 @@ kubectl apply -f pvc.yaml
 Create a ConfigMap for `config.json`, `topology.json`, `shelley.json`, and `alonzo.json`, which are small enough for ConfigMaps.
 
 ```bash
-kubectl create configmap cardano-mainnet-config \
-  --from-file=config.json=server/config/network/mainnet/cardano-node/config.json \
-  --from-file=topology.json=server/config/network/mainnet/cardano-node/topology.json \
-  --from-file=shelley.json=server/config/network/mainnet/genesis/shelley.json \
-  --from-file=alonzo.json=server/config/network/mainnet/genesis/alonzo.json
+kubectl create configmap cardano-preprod-config \
+  --from-file=config.json=server/config/network/preprod/cardano-node/config.json \
+  --from-file=checkpoints.json=server/config/network/preprod/cardano-nod/checkpoints.json \
+  --from-file=topology.json=server/config/network/preprod/cardano-node/topology.json \
+  --from-file=shelley.json=server/config/network/preprod/genesis/shelley.json \
+  --from-file=alonzo.json=server/config/network/preprod/genesis/alonzo.json \
+  --from-file=conway.json=server/config/network/preprod/genesis/conway.json
+  
 ```
 
 Verify the ConfigMap:
 ```bash
-kubectl describe configmap cardano-mainnet-config
+kubectl describe configmap cardano-preprod-config
 ```
 
 **Note**: Ensure the file paths match your local Ogmios repository structure. For testnets, use `server/config/network/testnet`.
 
 ### Upload Byron Genesis File Locally
 
-Upload the local `mainnet-byron-genesis.json` file (from the Ogmios repository or [Hydra](https://hydra.iohk.io)) to the `cardano-genesis-pvc` using a temporary pod.
+Upload the local `byron.json` file (from the Ogmios repository or [Hydra](https://hydra.iohk.io)) to the `cardano-genesis-pvc` using a temporary pod.
 
 1. **Create a Temporary Pod**:
 ```yaml
@@ -144,12 +147,12 @@ spec:
     image: busybox
     command: ["sleep", "3600"]
     volumeMounts:
-    - name: genesis-volume
+    - name: genesis-preprod-volume
       mountPath: /genesis
   volumes:
-  - name: genesis-volume
+  - name: genesis-preprod-volume
     persistentVolumeClaim:
-      claimName: cardano-genesis-pvc
+      claimName: cardano-preprod-genesis-pvc
 ```
 
 Apply it:
@@ -159,10 +162,10 @@ kubectl apply -f temp-pod.yaml
 
 2. **Copy the Byron Genesis File**:
 ```bash
-kubectl cp /path/to/local/mainnet-byron-genesis.json temp-pod:/genesis/byron.json
+kubectl cp /path/to/local/byron.json temp-pod:/genesis/byron.json
 ```
 
-**Note**: Replace `/path/to/local/mainnet-byron-genesis.json` with the actual path to your local file.
+**Note**: Replace `/path/to/local/byron.json` with the actual path to your local file.
 
 3. **Delete the Temporary Pod**:
 ```bash
@@ -171,32 +174,32 @@ kubectl delete pod temp-pod
 
 ### Deploy Cardano Node
 
-Deploy `cardano-node` with an InitContainer to consolidate configuration files into `/opt/cardano/cnode/files`.
+Deploy `cardano-node-preprod` with an InitContainer to consolidate configuration files into `/opt/cardano/cnode/files`.
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cardano-node
+  name: cardano-node-preprod
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cardano-node
+      app: cardano-node-preprod
   template:
     metadata:
       labels:
-        app: cardano-node
+        app: cardano-node-preprod
     spec:
       initContainers:
       - name: init-config
         image: busybox
         command: ['sh', '-c', 'cp /config/* /opt/cardano/cnode/files/ && cp /genesis/byron.json /opt/cardano/cnode/files/']
         volumeMounts:
-        - name: config-volume
+        - name: config-preprod-volume
           mountPath: /config
-        - name: genesis-volume
+        - name: genesis-preprod-volume
           mountPath: /genesis
         - name: cnode-files
           mountPath: /opt/cardano/cnode/files
@@ -207,9 +210,9 @@ spec:
         volumeMounts:
         - name: cnode-files
           mountPath: /opt/cardano/cnode/files
-        - name: node-db
+        - name: node-preprod-db
           mountPath: /data
-        - name: node-ipc
+        - name: node-preprod-ipc
           mountPath: /ipc
         resources:
           requests:
@@ -219,20 +222,20 @@ spec:
             memory: "22Gi"
             cpu: "4"
       volumes:
-      - name: config-volume
+      - name: config-preprod-volume
         configMap:
-          name: cardano-mainnet-config
+          name: cardano-preprod-config
       - name: genesis-volume
         persistentVolumeClaim:
-          claimName: cardano-genesis-pvc
+          claimName: cardano-preprod-genesis-pvc
       - name: cnode-files
         emptyDir: {}
       - name: node-db
         persistentVolumeClaim:
-          claimName: cardano-node-db
+          claimName: cardano-node-preprod-db
       - name: node-ipc
         persistentVolumeClaim:
-          claimName: cardano-node-ipc
+          claimName: cardano-node-preprod-ipc
 ```
 
 Apply the deployment:
@@ -277,9 +280,9 @@ spec:
         ports:
         - containerPort: 1337
         volumeMounts:
-        - name: config-volume
+        - name: config-preprod-volume
           mountPath: /config
-        - name: node-ipc
+        - name: node-preprod-ipc
           mountPath: /ipc
         resources:
           requests:
@@ -291,10 +294,10 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: cardano-mainnet-config
+          name: cardano-preprod-config
       - name: node-ipc
         persistentVolumeClaim:
-          claimName: cardano-node-ipc
+          claimName: cardano-node-preprod-ipc
 ```
 
 Apply the deployment:
