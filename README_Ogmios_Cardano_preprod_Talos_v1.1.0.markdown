@@ -114,12 +114,11 @@ Create a ConfigMap for `config.json`, `topology.json`, `shelley.json`, and `alon
 
 ```bash
 kubectl create configmap cardano-preprod-config \
-  --from-file=config.json=server/config/network/preprod/cardano-node/config.json \
-  --from-file=checkpoints.json=server/config/network/preprod/cardano-nod/checkpoints.json \
-  --from-file=topology.json=server/config/network/preprod/cardano-node/topology.json \
-  --from-file=shelley.json=server/config/network/preprod/genesis/shelley.json \
-  --from-file=alonzo.json=server/config/network/preprod/genesis/alonzo.json \
-  --from-file=conway.json=server/config/network/preprod/genesis/conway.json
+  --from-file=config.json=ogmios/server/config/network/preprod/cardano-node/config.json \
+  --from-file=topology.json=ogmios/server/config/network/preprod/cardano-node/topology.json \
+  --from-file=shelley.json=ogmios/server/config/network/preprod/genesis/shelley.json \
+  --from-file=alonzo.json=ogmios/server/config/network/preprod/genesis/alonzo.json \
+  --from-file=conway.json=ogmios/server/config/network/preprod/genesis/conway.json
   
 ```
 
