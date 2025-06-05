@@ -209,9 +209,9 @@ spec:
         volumeMounts:
         - name: cnode-files
           mountPath: /opt/cardano/cnode/files
-        - name: node-preprod-db
+        - name: node-db
           mountPath: /data
-        - name: node-preprod-ipc
+        - name: node-ipc
           mountPath: /ipc
         resources:
           requests:
