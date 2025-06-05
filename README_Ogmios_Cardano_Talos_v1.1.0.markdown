@@ -213,11 +213,11 @@ spec:
           mountPath: /ipc
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
+            memory: "20Gi"
             cpu: "2"
+          limits:
+            memory: "22Gi"
+            cpu: "4"
       volumes:
       - name: config-volume
         configMap:
@@ -283,11 +283,11 @@ spec:
           mountPath: /ipc
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
             memory: "1Gi"
-            cpu: "1"
+            cpu: "2"
+          limits:
+            memory: "2Gi"
+            cpu: "2"
       volumes:
       - name: config-volume
         configMap:
