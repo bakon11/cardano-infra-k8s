@@ -59,7 +59,7 @@ Before proceeding, ensure the following:
 
 ## Resolving the ConfigMap Error
 
-The error `cannot give a key name for a directory path` occurred when creating a ConfigMap with the `genesis` directory, which contains multiple files (`alonzo-genesis.json`, `byron-genesis.json`, `shelley-genesis.json`). Kubernetes ConfigMaps require individual files, not directories. The corrected command specifies each genesis file explicitly, resolving the issue.
+The error `cannot give a key name for a directory path` occurred when creating a ConfigMap with the `genesis` directory, which contains multiple files (`alonzo.json`, `byron.json`, `shelley.json`). Kubernetes ConfigMaps require individual files, not directories. The corrected command specifies each genesis file explicitly, resolving the issue.
 
 ## Deployment Steps
 
@@ -71,9 +71,10 @@ Create a ConfigMap to store configuration files for `cardano-node` and `ogmios`.
 kubectl create configmap cardano-mainnet-config \
   --from-file=config.json=server/config/network/mainnet/cardano-node/config.json \
   --from-file=topology.json=server/config/network/mainnet/cardano-node/topology.json \
-  --from-file=alonzo-genesis.json=server/config/network/mainnet/genesis/alonzo-genesis.json \
-  --from-file=byron-genesis.json=server/config/network/mainnet/genesis/byron-genesis.json \
-  --from-file=shelley-genesis.json=server/config/network/mainnet/genesis/shelley-genesis.json
+  --from-file=alonzo-genesis.json=server/config/network/mainnet/genesis/alonzo.json \
+  --from-file=byron-genesis.json=server/config/network/mainnet/genesis/byron.json \
+  --from-file=shelley-genesis.json=server/config/network/mainnet/genesis/shelley.json \
+  --from-file=conway-genesis.json=server/config/network/mainnet/genesis/conway.json
 ```
 
 Verify the ConfigMap:
@@ -197,6 +198,8 @@ spec:
             path: byron-genesis.json
           - key: shelley-genesis.json
             path: shelley-genesis.json
+          - key: conway-genesis.json
+            path: conway-genesis.json
       - name: node-db
         persistentVolumeClaim:
           claimName: cardano-node-db
