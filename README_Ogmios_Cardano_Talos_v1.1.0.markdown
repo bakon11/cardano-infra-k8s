@@ -116,8 +116,8 @@ Create a ConfigMap for `config.json`, `topology.json`, `shelley.json`, and `alon
 kubectl create configmap cardano-mainnet-config \
   --from-file=config.json=server/config/network/mainnet/cardano-node/config.json \
   --from-file=topology.json=server/config/network/mainnet/cardano-node/topology.json \
-  --from-file=shelley-genesis.json=server/config/network/mainnet/genesis/shelley.json \
-  --from-file=alonzo-genesis.json=server/config/network/mainnet/genesis/alonzo.json
+  --from-file=shelley.json=server/config/network/mainnet/genesis/shelley.json \
+  --from-file=alonzo.json=server/config/network/mainnet/genesis/alonzo.json
 ```
 
 Verify the ConfigMap:
