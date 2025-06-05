@@ -198,7 +198,7 @@ spec:
         volumeMounts:
         - name: config-preprod-volume
           mountPath: /config
-        - name: genesis-preprod-volume
+        - name: genesis-volume  # Fixed from genesis-preprod-volume
           mountPath: /genesis
         - name: cnode-files
           mountPath: /opt/cardano/cnode/files
