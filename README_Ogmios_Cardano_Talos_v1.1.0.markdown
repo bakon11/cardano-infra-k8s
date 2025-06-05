@@ -110,14 +110,14 @@ kubectl apply -f pvc.yaml
 
 ### Create ConfigMap for Configuration Files
 
-Create a ConfigMap for `config.json`, `topology.json`, `shelley-genesis.json`, and `alonzo-genesis.json`, which are small enough for ConfigMaps.
+Create a ConfigMap for `config.json`, `topology.json`, `shelley.json`, and `alonzo.json`, which are small enough for ConfigMaps.
 
 ```bash
 kubectl create configmap cardano-mainnet-config \
   --from-file=config.json=server/config/network/mainnet/cardano-node/config.json \
   --from-file=topology.json=server/config/network/mainnet/cardano-node/topology.json \
-  --from-file=shelley-genesis.json=server/config/network/mainnet/genesis/shelley-genesis.json \
-  --from-file=alonzo-genesis.json=server/config/network/mainnet/genesis/alonzo-genesis.json
+  --from-file=shelley-genesis.json=server/config/network/mainnet/genesis/shelley.json \
+  --from-file=alonzo-genesis.json=server/config/network/mainnet/genesis/alonzo.json
 ```
 
 Verify the ConfigMap:
@@ -159,7 +159,7 @@ kubectl apply -f temp-pod.yaml
 
 2. **Copy the Byron Genesis File**:
 ```bash
-kubectl cp /path/to/local/mainnet-byron-genesis.json temp-pod:/genesis/mainnet-byron-genesis.json
+kubectl cp /path/to/local/mainnet-byron-genesis.json temp-pod:/genesis/byron.json
 ```
 
 **Note**: Replace `/path/to/local/mainnet-byron-genesis.json` with the actual path to your local file.
@@ -192,7 +192,7 @@ spec:
       initContainers:
       - name: init-config
         image: busybox
-        command: ['sh', '-c', 'cp /config/* /opt/cardano/cnode/files/ && cp /genesis/mainnet-byron-genesis.json /opt/cardano/cnode/files/']
+        command: ['sh', '-c', 'cp /config/* /opt/cardano/cnode/files/ && cp /genesis/byron.json /opt/cardano/cnode/files/']
         volumeMounts:
         - name: config-volume
           mountPath: /config
